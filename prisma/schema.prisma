@@ -44,8 +44,37 @@ model Subscription {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan              Plan                 @relation(fields: [planId], references: [id], onDelete: Cascade)
+  subscriptionOptions SubscriptionOption[]
 
   @@map("subscriptions")
+}
+
+model Option {
+  id                  Int                  @id @default(autoincrement())
+  name                String               @unique
+  description         String?
+  priceType           String               // 'FIXED', 'PER_USER', 'PER_GB'
+  unitPrice           Float                @map("unit_price")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  subscriptionOptions SubscriptionOption[]
+
+  @@map("options")
+}
+
+model SubscriptionOption {
+  id             Int          @id @default(autoincrement())
+  subscriptionId Int          @map("subscription_id")
+  optionId       Int          @map("option_id")
+  quantity       Int          @default(1) // ユーザー数またはGB数
+  price          Float        // 計算された料金
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  option       Option       @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriptionId, optionId])
+  @@map("subscription_options")
 }
