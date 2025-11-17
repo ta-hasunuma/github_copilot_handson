@@ -35,6 +35,36 @@ async function main() {
 
   console.log(`✅ Created ${plans.length} plans`);
 
+  // オプションデータを作成
+  const options = await Promise.all([
+    prisma.option.create({
+      data: {
+        name: "PC同期クライアント",
+        description: "PCとのファイル自動同期",
+        priceType: "PER_USER",
+        unitPrice: 100.0,
+      },
+    }),
+    prisma.option.create({
+      data: {
+        name: "セキュリティ",
+        description: "SSO・証跡保護",
+        priceType: "FIXED",
+        unitPrice: 5000.0,
+      },
+    }),
+    prisma.option.create({
+      data: {
+        name: "バックアップ",
+        description: "30日間のファイル履歴保存",
+        priceType: "PER_GB",
+        unitPrice: 10.0,
+      },
+    }),
+  ]);
+
+  console.log(`✅ Created ${options.length} options`);
+
   // サンプルユーザーを作成または取得（開発・テスト用）
   const sampleUser = await prisma.user.upsert({
     where: { email: "john@example.com" },
@@ -59,7 +89,9 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created sample subscription with ID: ${sampleSubscription.id}`);
+  console.log(
+    `✅ Created sample subscription with ID: ${sampleSubscription.id}`
+  );
 
   console.log("🎉 Seeding completed successfully!");
 }
