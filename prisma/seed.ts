@@ -93,6 +93,28 @@ async function main() {
     `✅ Created sample subscription with ID: ${sampleSubscription.id}`
   );
 
+  // サンプルのサブスクリプションオプションを作成
+  const subscriptionOptions = await Promise.all([
+    prisma.subscriptionOption.create({
+      data: {
+        subscriptionId: sampleSubscription.id,
+        optionId: options[0].id, // PC同期クライアント (PER_USER)
+        quantity: 5, // 5ユーザー分
+        price: options[0].unitPrice * 5, // 100 * 5 = 500
+      },
+    }),
+    prisma.subscriptionOption.create({
+      data: {
+        subscriptionId: sampleSubscription.id,
+        optionId: options[1].id, // セキュリティ (FIXED)
+        quantity: 1,
+        price: options[1].unitPrice, // 5000
+      },
+    }),
+  ]);
+
+  console.log(`✅ Created ${subscriptionOptions.length} subscription options`);
+
   console.log("🎉 Seeding completed successfully!");
 }
 
