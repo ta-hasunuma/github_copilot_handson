@@ -27,3 +27,4 @@ npm run db:studio   # DB確認用GUI起動
 ```
 
 **Happy Coding with AI Agents! 🤖✨**
+# github_copilot_handson
