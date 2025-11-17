@@ -1,0 +1,477 @@
+openapi: 3.0.3
+info:
+  title: Stash API
+  description: |
+    Stash クラウドストレージサービス申し込みAPI
+    
+    このAPIは、AIエージェント研修用のサンプルプロジェクトです。
+    ユーザー登録からプラン申し込みまでの一連の機能を提供します。
+  version: 1.0.0
+  contact:
+    name: AI Coding Training Project
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Development server
+  - url: http://localhost:8080/api/v1
+    description: Alternative development server
+
+paths:
+  /health:
+    get:
+      summary: ヘルスチェック
+      description: APIサーバーの稼働状況を確認します
+      tags:
+        - Health
+      responses:
+        '200':
+          description: APIが正常に稼働中
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Stash API is running"
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+                    example: "v1"
+
+  /plans:
+    get:
+      summary: プラン一覧取得
+      description: 利用可能なストレージプランの一覧を取得します
+      tags:
+        - Plans
+      responses:
+        '200':
+          description: プラン一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlansResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users:
+    post:
+      summary: ユーザー登録
+      description: 新規ユーザーを登録します
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: ユーザーの登録に成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /subscriptions:
+    post:
+      summary: プラン申し込み作成
+      description: ユーザーとプランを紐づけてサブスクリプションを作成します
+      tags:
+        - Subscriptions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubscriptionRequest'
+      responses:
+        '201':
+          description: サブスクリプションの作成に成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /calculate:
+    get:
+      summary: 料金計算
+      description: プランIDとストレージサイズに基づいて料金を計算します
+      tags:
+        - Calculate
+      parameters:
+        - name: planId
+          in: query
+          required: true
+          description: プランID
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+        - name: storageSize
+          in: query
+          required: true
+          description: ストレージサイズ（GB）
+          schema:
+            type: integer
+            minimum: 1
+            example: 50
+      responses:
+        '200':
+          description: 料金計算に成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalculateResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: プランが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /debug/users:
+    get:
+      summary: 全ユーザー一覧取得（デバッグ用）
+      description: 登録済みの全ユーザー情報を取得します
+      tags:
+        - Debug
+      responses:
+        '200':
+          description: ユーザー一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+                    example: "ユーザー一覧を取得しました"
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /debug/subscriptions:
+    get:
+      summary: 全サブスクリプション一覧取得（デバッグ用）
+      description: 登録済みの全サブスクリプション情報を取得します
+      tags:
+        - Debug
+      responses:
+        '200':
+          description: サブスクリプション一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Subscription'
+                  message:
+                    type: string
+                    example: "プラン申し込み一覧を取得しました"
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    Plan:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Basic"
+        basePrice:
+          type: number
+          format: decimal
+          example: 1000.00
+          description: "基本料金"
+        pricePerGb:
+          type: number
+          format: decimal
+          example: 100.00
+          description: "1GBあたりの価格"
+        description:
+          type: string
+          nullable: true
+          example: "個人ユーザー向けの基本プラン"
+        createdAt:
+          type: string
+          format: date-time
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "山田太郎"
+        email:
+          type: string
+          format: email
+          example: "yamada@example.com"
+        phone:
+          type: string
+          example: "090-1234-5678"
+        company:
+          type: string
+          nullable: true
+          example: "株式会社サンプル"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        planId:
+          type: integer
+          example: 2
+        storageSize:
+          type: integer
+          example: 50
+          description: "ストレージサイズ（GB）"
+        status:
+          type: string
+          example: "pending"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateUserRequest:
+      type: object
+      required:
+        - name
+        - email
+        - phone
+      properties:
+        name:
+          type: string
+          example: "山田太郎"
+          description: "ユーザー名"
+        email:
+          type: string
+          format: email
+          example: "yamada@example.com"
+        phone:
+          type: string
+          example: "090-1234-5678"
+          description: "電話番号"
+        company:
+          type: string
+          nullable: true
+          example: "株式会社サンプル"
+          description: "会社名（任意）"
+
+    CreateSubscriptionRequest:
+      type: object
+      required:
+        - user_id
+        - plan_id
+        - storage_size
+      properties:
+        user_id:
+          type: integer
+          minimum: 1
+          example: 1
+          description: "存在するユーザーID"
+        plan_id:
+          type: integer
+          minimum: 1
+          example: 2
+          description: "存在するプランID"
+        storage_size:
+          type: integer
+          minimum: 1
+          example: 50
+          description: "必要なストレージサイズ（GB）"
+
+    PlansResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Plan'
+
+    UserResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/User'
+        message:
+          type: string
+          example: "ユーザーが正常に登録されました"
+
+    SubscriptionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/Subscription'
+        message:
+          type: string
+          example: "申し込みが正常に作成されました"
+
+    CalculateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            planId:
+              type: integer
+              example: 1
+            planName:
+              type: string
+              example: "Basic"
+            storageSize:
+              type: integer
+              example: 50
+              description: "ストレージサイズ（GB）"
+            basePrice:
+              type: number
+              format: decimal
+              example: 1000.00
+              description: "基本料金"
+            storagePrice:
+              type: number
+              format: decimal
+              example: 5000.00
+              description: "ストレージ料金"
+            totalPrice:
+              type: number
+              format: decimal
+              example: 6000.00
+              description: "合計料金"
+        message:
+          type: string
+          example: "料金計算が完了しました"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              enum: [VALIDATION_ERROR, NOT_FOUND, INTERNAL_ERROR, RATE_LIMIT_EXCEEDED]
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "Invalid input data"
+
+tags:
+  - name: Health
+    description: ヘルスチェック関連
+  - name: Plans
+    description: プラン管理
+  - name: Users
+    description: ユーザー管理
+  - name: Subscriptions
+    description: サブスクリプション管理
+  - name: Calculate
+    description: 料金計算
+  - name: Debug
+    description: デバッグ用エンドポイント

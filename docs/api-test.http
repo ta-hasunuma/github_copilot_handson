@@ -1,0 +1,86 @@
+### Stash API Testing with REST Client
+
+@baseUrl = http://localhost:3000
+@apiVersion = v1
+
+### ヘルスチェック
+GET {{baseUrl}}/health
+
+### プラン一覧取得
+GET {{baseUrl}}/api/{{apiVersion}}/plans
+
+### ユーザー登録 - 成功例
+POST {{baseUrl}}/api/{{apiVersion}}/users
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "company_name": "Example Corp"
+}
+
+### ユーザー登録 - 会社名なし
+POST {{baseUrl}}/api/{{apiVersion}}/users
+Content-Type: application/json
+
+{
+  "username": "jane_smith",
+  "email": "jane@example.com"
+}
+
+### ユーザー登録 - バリデーションエラー（無効なユーザー名）
+POST {{baseUrl}}/api/{{apiVersion}}/users
+Content-Type: application/json
+
+{
+  "username": "invalid-username!",
+  "email": "invalid@example.com"
+}
+
+### ユーザー登録 - バリデーションエラー（無効なメール）
+POST {{baseUrl}}/api/{{apiVersion}}/users
+Content-Type: application/json
+
+{
+  "username": "valid_username",
+  "email": "invalid-email"
+}
+
+### 申し込み作成 - 成功例
+POST {{baseUrl}}/api/{{apiVersion}}/applications
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "plan_id": 1
+}
+
+### 申し込み作成 - 存在しないユーザー
+POST {{baseUrl}}/api/{{apiVersion}}/applications
+Content-Type: application/json
+
+{
+  "user_id": 99999,
+  "plan_id": 1
+}
+
+### 申し込み作成 - 存在しないプラン
+POST {{baseUrl}}/api/{{apiVersion}}/applications
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "plan_id": 99999
+}
+
+### 申し込み詳細取得 - 成功例
+GET {{baseUrl}}/api/{{apiVersion}}/applications/1
+
+### 申し込み詳細取得 - 存在しない申し込み
+GET {{baseUrl}}/api/{{apiVersion}}/applications/99999
+
+### 存在しないエンドポイント - 404テスト
+GET {{baseUrl}}/api/{{apiVersion}}/nonexistent
+
+### レート制限テスト（複数回実行してテスト）
+GET {{baseUrl}}/api/{{apiVersion}}/plans
