@@ -15,7 +15,9 @@ export class SubscriptionOptionService {
   /**
    * サブスクリプションにオプションを追加
    */
-  async addOptionToSubscription(data: AddOptionData): Promise<SubscriptionOption> {
+  async addOptionToSubscription(
+    data: AddOptionData
+  ): Promise<SubscriptionOption> {
     // オプションを取得して料金を計算
     const option = await prisma.option.findUnique({
       where: { id: data.optionId },
@@ -42,7 +44,10 @@ export class SubscriptionOptionService {
   /**
    * オプションの数量を更新
    */
-  async updateOptionQuantity(id: number, quantity: number): Promise<SubscriptionOption> {
+  async updateOptionQuantity(
+    id: number,
+    quantity: number
+  ): Promise<SubscriptionOption> {
     // 既存のサブスクリプションオプションを取得
     const existingOption = await prisma.subscriptionOption.findUnique({
       where: { id },
@@ -93,7 +98,9 @@ export class SubscriptionOptionService {
   /**
    * サブスクリプションに紐づくオプション一覧を取得
    */
-  async getSubscriptionOptions(subscriptionId: number): Promise<SubscriptionOptionWithDetails[]> {
+  async getSubscriptionOptions(
+    subscriptionId: number
+  ): Promise<SubscriptionOptionWithDetails[]> {
     return await prisma.subscriptionOption.findMany({
       where: { subscriptionId },
       include: {
@@ -108,7 +115,10 @@ export class SubscriptionOptionService {
    * - PER_USER: 単価 × ユーザー数
    * - PER_GB: 単価 × GB数
    */
-  async calculateOptionPrice(optionId: number, quantity: number): Promise<number> {
+  async calculateOptionPrice(
+    optionId: number,
+    quantity: number
+  ): Promise<number> {
     const option = await prisma.option.findUnique({
       where: { id: optionId },
     });
