@@ -8,6 +8,7 @@ import helmet from "helmet";
 import calculateRouter from "./routes/calculate";
 import debugRouter from "./routes/debug";
 import healthRouter from "./routes/health";
+import optionsRouter from "./routes/options";
 import plansRouter from "./routes/plans";
 import subscriptionsRouter from "./routes/subscriptions";
 import usersRouter from "./routes/users";
@@ -49,6 +50,7 @@ app.use(`/api/${API_VERSION}/calculate`, calculateRouter);
 app.use(`/api/${API_VERSION}/users`, usersRouter);
 app.use(`/api/${API_VERSION}/subscriptions`, subscriptionsRouter);
 app.use(`/api/${API_VERSION}/plans`, plansRouter);
+app.use(`/api/${API_VERSION}/options`, optionsRouter);
 app.use(`/api/${API_VERSION}/debug`, debugRouter);
 
 // 404ハンドラー
