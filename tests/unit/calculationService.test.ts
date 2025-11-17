@@ -197,7 +197,10 @@ describe("CalculationService", () => {
         createdAt: new Date(),
       };
 
-      const mockSubscription: Subscription & { plan: Plan } = {
+      const mockSubscription: Subscription & {
+        plan: Plan;
+        subscriptionOptions: [];
+      } = {
         id: 1,
         userId: 1,
         planId: 1,
@@ -206,6 +209,7 @@ describe("CalculationService", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         plan: mockPlan,
+        subscriptionOptions: [],
       };
 
       mockSubscriptionFindUnique.mockResolvedValue(mockSubscription);
@@ -225,17 +229,6 @@ describe("CalculationService", () => {
         pricePerGb: 50.0,
         description: "個人ユーザー向けの基本プラン",
         createdAt: new Date(),
-      };
-
-      const mockSubscription: Subscription & { plan: Plan } = {
-        id: 1,
-        userId: 1,
-        planId: 1,
-        storageSize: 10,
-        status: "active",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        plan: mockPlan,
       };
 
       const mockOption: Option = {
@@ -260,6 +253,21 @@ describe("CalculationService", () => {
         },
       ];
 
+      const mockSubscription: Subscription & {
+        plan: Plan;
+        subscriptionOptions: typeof mockSubscriptionOptions;
+      } = {
+        id: 1,
+        userId: 1,
+        planId: 1,
+        storageSize: 10,
+        status: "active",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        plan: mockPlan,
+        subscriptionOptions: mockSubscriptionOptions,
+      };
+
       mockSubscriptionFindUnique.mockResolvedValue(mockSubscription);
       mockSubscriptionOptionFindMany.mockResolvedValue(mockSubscriptionOptions);
 
@@ -277,17 +285,6 @@ describe("CalculationService", () => {
         pricePerGb: 30.0,
         description: "小規模チーム向けプラン",
         createdAt: new Date(),
-      };
-
-      const mockSubscription: Subscription & { plan: Plan } = {
-        id: 2,
-        userId: 1,
-        planId: 2,
-        storageSize: 100,
-        status: "active",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        plan: mockPlan,
       };
 
       const mockOption: Option = {
@@ -312,6 +309,21 @@ describe("CalculationService", () => {
         },
       ];
 
+      const mockSubscription: Subscription & {
+        plan: Plan;
+        subscriptionOptions: typeof mockSubscriptionOptions;
+      } = {
+        id: 2,
+        userId: 1,
+        planId: 2,
+        storageSize: 100,
+        status: "active",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        plan: mockPlan,
+        subscriptionOptions: mockSubscriptionOptions,
+      };
+
       mockSubscriptionFindUnique.mockResolvedValue(mockSubscription);
       mockSubscriptionOptionFindMany.mockResolvedValue(mockSubscriptionOptions);
 
@@ -329,17 +341,6 @@ describe("CalculationService", () => {
         pricePerGb: 50.0,
         description: "個人ユーザー向けの基本プラン",
         createdAt: new Date(),
-      };
-
-      const mockSubscription: Subscription & { plan: Plan } = {
-        id: 3,
-        userId: 1,
-        planId: 1,
-        storageSize: 50,
-        status: "active",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        plan: mockPlan,
       };
 
       const mockOption: Option = {
@@ -364,6 +365,21 @@ describe("CalculationService", () => {
         },
       ];
 
+      const mockSubscription: Subscription & {
+        plan: Plan;
+        subscriptionOptions: typeof mockSubscriptionOptions;
+      } = {
+        id: 3,
+        userId: 1,
+        planId: 1,
+        storageSize: 50,
+        status: "active",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        plan: mockPlan,
+        subscriptionOptions: mockSubscriptionOptions,
+      };
+
       mockSubscriptionFindUnique.mockResolvedValue(mockSubscription);
       mockSubscriptionOptionFindMany.mockResolvedValue(mockSubscriptionOptions);
 
@@ -381,17 +397,6 @@ describe("CalculationService", () => {
         pricePerGb: 30.0,
         description: "小規模チーム向けプラン",
         createdAt: new Date(),
-      };
-
-      const mockSubscription: Subscription & { plan: Plan } = {
-        id: 4,
-        userId: 1,
-        planId: 2,
-        storageSize: 100,
-        status: "active",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        plan: mockPlan,
       };
 
       const mockOptions = [
@@ -448,6 +453,21 @@ describe("CalculationService", () => {
         },
       ];
 
+      const mockSubscription: Subscription & {
+        plan: Plan;
+        subscriptionOptions: typeof mockOptions;
+      } = {
+        id: 4,
+        userId: 1,
+        planId: 2,
+        storageSize: 100,
+        status: "active",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        plan: mockPlan,
+        subscriptionOptions: mockOptions,
+      };
+
       mockSubscriptionFindUnique.mockResolvedValue(mockSubscription);
       mockSubscriptionOptionFindMany.mockResolvedValue(mockOptions);
 
@@ -477,7 +497,10 @@ describe("CalculationService", () => {
         createdAt: new Date(),
       };
 
-      const mockSubscription: Subscription & { plan: Plan } = {
+      const mockSubscription: Subscription & {
+        plan: Plan;
+        subscriptionOptions: [];
+      } = {
         id: 1,
         userId: 1,
         planId: 1,
@@ -486,6 +509,7 @@ describe("CalculationService", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         plan: mockPlan,
+        subscriptionOptions: [],
       };
 
       mockSubscriptionFindUnique.mockResolvedValue(mockSubscription);
@@ -512,17 +536,6 @@ describe("CalculationService", () => {
         pricePerGb: 30.0,
         description: "小規模チーム向けプラン",
         createdAt: new Date(),
-      };
-
-      const mockSubscription: Subscription & { plan: Plan } = {
-        id: 2,
-        userId: 1,
-        planId: 2,
-        storageSize: 100,
-        status: "active",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        plan: mockPlan,
       };
 
       const mockOptions = [
@@ -561,6 +574,21 @@ describe("CalculationService", () => {
           },
         },
       ];
+
+      const mockSubscription: Subscription & {
+        plan: Plan;
+        subscriptionOptions: typeof mockOptions;
+      } = {
+        id: 2,
+        userId: 1,
+        planId: 2,
+        storageSize: 100,
+        status: "active",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        plan: mockPlan,
+        subscriptionOptions: mockOptions,
+      };
 
       mockSubscriptionFindUnique.mockResolvedValue(mockSubscription);
       mockSubscriptionOptionFindMany.mockResolvedValue(mockOptions);
