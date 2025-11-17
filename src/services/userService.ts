@@ -4,7 +4,7 @@ import prisma from "../lib/prisma";
 export interface CreateUserData {
   name: string;
   email: string;
-  phone: string;
+  phone?: string | null;
   company?: string | null;
 }
 
@@ -17,8 +17,8 @@ export class UserService {
       data: {
         name: data.name,
         email: data.email,
-        phone: data.phone,
-        company: data.company || null,
+        phone: data.phone ?? null,
+        company: data.company ?? null,
       },
     });
   }
