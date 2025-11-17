@@ -207,4 +207,232 @@ describe("API Integration Tests", () => {
       expect(backupOption.description).toBe("30日間のファイル履歴保存");
     });
   });
+
+  describe("Subscription Options API", () => {
+    let testSubscriptionId: number;
+    let testOptionId: number;
+
+    beforeEach(async () => {
+      // テスト用ユーザー作成
+      const userResponse = await request(app)
+        .post("/api/v1/users")
+        .send({
+          name: `Option Test User ${Date.now()}`,
+          email: `option_test_${Date.now()}@example.com`,
+          phone: "03-1234-5678",
+        });
+      const userId = userResponse.body.data.id;
+
+      // テスト用契約作成
+      const plans = await prisma.plan.findMany();
+      if (!plans[0]) throw new Error("プランが見つかりません");
+      const subscriptionResponse = await request(app)
+        .post("/api/v1/subscriptions")
+        .send({
+          user_id: userId,
+          plan_id: plans[0].id,
+          storage_size: 100,
+        });
+      testSubscriptionId = subscriptionResponse.body.data.id;
+
+      // テスト用オプションID取得
+      const options = await prisma.option.findMany();
+      if (!options[0]) throw new Error("オプションが見つかりません");
+      testOptionId = options[0].id; // PC同期クライアント
+    });
+
+    describe("POST /api/v1/subscriptions/:id/options", () => {
+      it("should add option to subscription successfully", async () => {
+        const response = await request(app)
+          .post(`/api/v1/subscriptions/${testSubscriptionId}/options`)
+          .send({
+            optionId: testOptionId,
+            quantity: 5,
+          })
+          .expect(201);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.subscriptionId).toBe(testSubscriptionId);
+        expect(response.body.data.optionId).toBe(testOptionId);
+        expect(response.body.data.quantity).toBe(5);
+        expect(response.body.data.price).toBe(500); // 100 * 5
+      });
+
+      it("should return 400 for invalid optionId", async () => {
+        const response = await request(app)
+          .post(`/api/v1/subscriptions/${testSubscriptionId}/options`)
+          .send({
+            optionId: -1,
+            quantity: 5,
+          })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+      });
+
+      it("should return 400 for invalid quantity", async () => {
+        const response = await request(app)
+          .post(`/api/v1/subscriptions/${testSubscriptionId}/options`)
+          .send({
+            optionId: testOptionId,
+            quantity: 0,
+          })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+      });
+
+      it("should return 404 for non-existent subscription", async () => {
+        const response = await request(app)
+          .post("/api/v1/subscriptions/99999/options")
+          .send({
+            optionId: testOptionId,
+            quantity: 5,
+          })
+          .expect(404);
+
+        expect(response.body.success).toBe(false);
+      });
+
+      it("should return 404 for non-existent option", async () => {
+        const response = await request(app)
+          .post(`/api/v1/subscriptions/${testSubscriptionId}/options`)
+          .send({
+            optionId: 99999,
+            quantity: 5,
+          })
+          .expect(404);
+
+        expect(response.body.success).toBe(false);
+      });
+    });
+
+    describe("GET /api/v1/subscriptions/:id/options", () => {
+      it("should get empty list when no options added", async () => {
+        const response = await request(app)
+          .get(`/api/v1/subscriptions/${testSubscriptionId}/options`)
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBe(0);
+      });
+
+      it("should get subscription options list", async () => {
+        // オプション追加
+        await request(app)
+          .post(`/api/v1/subscriptions/${testSubscriptionId}/options`)
+          .send({
+            optionId: testOptionId,
+            quantity: 5,
+          });
+
+        const response = await request(app)
+          .get(`/api/v1/subscriptions/${testSubscriptionId}/options`)
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBe(1);
+        expect(response.body.data[0].quantity).toBe(5);
+        expect(response.body.data[0].option).toBeDefined();
+        expect(response.body.data[0].option.name).toBe("PC同期クライアント");
+      });
+
+      it("should return 404 for non-existent subscription", async () => {
+        const response = await request(app)
+          .get("/api/v1/subscriptions/99999/options")
+          .expect(404);
+
+        expect(response.body.success).toBe(false);
+      });
+    });
+
+    describe("PUT /api/v1/subscriptions/:id/options/:optionId", () => {
+      beforeEach(async () => {
+        // オプション追加
+        await request(app)
+          .post(`/api/v1/subscriptions/${testSubscriptionId}/options`)
+          .send({
+            optionId: testOptionId,
+            quantity: 5,
+          });
+      });
+
+      it("should update option quantity successfully", async () => {
+        const response = await request(app)
+          .put(
+            `/api/v1/subscriptions/${testSubscriptionId}/options/${testOptionId}`
+          )
+          .send({
+            quantity: 10,
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.quantity).toBe(10);
+        expect(response.body.data.price).toBe(1000); // 100 * 10
+      });
+
+      it("should return 400 for invalid quantity", async () => {
+        const response = await request(app)
+          .put(
+            `/api/v1/subscriptions/${testSubscriptionId}/options/${testOptionId}`
+          )
+          .send({
+            quantity: 0,
+          })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+      });
+
+      it("should return 404 for non-existent subscription option", async () => {
+        const response = await request(app)
+          .put(`/api/v1/subscriptions/${testSubscriptionId}/options/99999`)
+          .send({
+            quantity: 10,
+          })
+          .expect(404);
+
+        expect(response.body.success).toBe(false);
+      });
+    });
+
+    describe("DELETE /api/v1/subscriptions/:id/options/:optionId", () => {
+      beforeEach(async () => {
+        // オプション追加
+        await request(app)
+          .post(`/api/v1/subscriptions/${testSubscriptionId}/options`)
+          .send({
+            optionId: testOptionId,
+            quantity: 5,
+          });
+      });
+
+      it("should delete subscription option successfully", async () => {
+        const response = await request(app)
+          .delete(
+            `/api/v1/subscriptions/${testSubscriptionId}/options/${testOptionId}`
+          )
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+
+        // 削除確認
+        const getResponse = await request(app)
+          .get(`/api/v1/subscriptions/${testSubscriptionId}/options`)
+          .expect(200);
+        expect(getResponse.body.data.length).toBe(0);
+      });
+
+      it("should return 404 for non-existent subscription option", async () => {
+        const response = await request(app)
+          .delete(`/api/v1/subscriptions/${testSubscriptionId}/options/99999`)
+          .expect(404);
+
+        expect(response.body.success).toBe(false);
+      });
+    });
+  });
 });
