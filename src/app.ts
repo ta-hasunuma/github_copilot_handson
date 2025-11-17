@@ -7,6 +7,7 @@ import helmet from "helmet";
 // ルーターのインポート
 import calculateRouter from "./routes/calculate";
 import debugRouter from "./routes/debug";
+import healthRouter from "./routes/health";
 import plansRouter from "./routes/plans";
 import subscriptionsRouter from "./routes/subscriptions";
 import usersRouter from "./routes/users";
@@ -40,6 +41,9 @@ app.use(limiter);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
+// ヘルスチェック (レート制限の対象外)
+app.use("/health", healthRouter);
+
 // APIルートの設定
 app.use(`/api/${API_VERSION}/calculate`, calculateRouter);
 app.use(`/api/${API_VERSION}/users`, usersRouter);
@@ -59,16 +63,23 @@ app.use("*", (_req, res) => {
 });
 
 // エラーハンドラー
-app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error("Unhandled error:", err);
+app.use(
+  (
+    err: Error,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction
+  ) => {
+    console.error("Unhandled error:", err);
 
-  res.status(500).json({
-    success: false,
-    error: {
-      code: "INTERNAL_ERROR",
-      message: "Internal server error",
-    },
-  });
-});
+    res.status(500).json({
+      success: false,
+      error: {
+        code: "INTERNAL_ERROR",
+        message: "Internal server error",
+      },
+    });
+  }
+);
 
 export default app;
